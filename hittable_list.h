@@ -1,9 +1,9 @@
 #ifndef HITTABLE_LIST_H
 #define HITTABLE_LIST_H
 
-#include <memory>
 #include <vector>
 
+#include "ray_tracer.h"
 #include "hittable.h"
 
 using std::make_shared;
@@ -20,7 +20,8 @@ class hittable_list : public hittable {
 
     void clear() { objects.clear(); }
 
-    bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_record& rec) const override {
+    bool hit(const ray& r, double ray_tmin, double ray_tmax,
+             hit_record& rec) const override {
         hit_record temp_rec;
         bool hit_anything = false;
         double closest_yet = ray_tmax;
