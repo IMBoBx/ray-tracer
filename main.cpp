@@ -10,14 +10,16 @@ double hit_sphere(const point3& center, double radius, const ray& r) {
     vec3 dir = r.direction();
 
     double a = dir.length_squared();
+    // b = -2*dir - oc; use b = -2h;
     double h = dot(dir, oc);
     double c = oc.length_squared() - radius * radius;
 
-    double discriminant = h * h - a * c;
+    double discriminant = h * h - a * c;  //
 
     if (discriminant < 0) {
         return -1.0;
     } else {
+        // (-b +- sqrt(disc)) / 2a (use -ve only, for closest normal);
         return (h - std::sqrt(discriminant)) / a;
     }
 }
