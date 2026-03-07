@@ -1,8 +1,8 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-#include "ray_tracer.h"
 #include "hittable.h"
+#include "ray_tracer.h"
 
 class sphere : public hittable {
    private:
@@ -13,8 +13,7 @@ class sphere : public hittable {
     sphere(const point3& center, double radius)
         : center(center), radius(std::fmax(0, radius)) {}
 
-    bool hit(const ray& r, double ray_tmin, double ray_tmax,
-             hit_record& rec) const override {
+    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
         vec3 oc = center - r.origin();
         vec3 dir = r.direction();
 
@@ -33,9 +32,9 @@ class sphere : public hittable {
 
         // finding nearest root
         double root = (h - sqrtd) / a;
-        if (root < ray_tmin || root > ray_tmax) {
+        if (!ray_t.surrounds(root)) {
             root = (h + sqrtd) / a;
-            if (root < ray_tmin || root > ray_tmax) {
+            if (!ray_t.surrounds(root)) {
                 return false;
             }
         }
