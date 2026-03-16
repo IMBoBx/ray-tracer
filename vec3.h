@@ -38,6 +38,15 @@ class vec3 {
         return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
     }
 
+    static vec3 random() {
+        return vec3(random_double(), random_double(), random_double());
+    }
+
+    static vec3 random(double min, double max) {
+        return vec3(random_double(min, max), random_double(min, max),
+                    random_double(min, max));
+    }
+
     double length() const { return std::sqrt(length_squared()); }
 };
 
@@ -82,5 +91,28 @@ inline vec3 cross(const vec3& u, const vec3& v) {
 }
 
 inline vec3 unit_vector(const vec3& v) { return v / v.length(); }
+
+inline vec3 random_unit_vector() {
+    while (true) {
+        auto p = vec3::random(-1, 1);
+        auto lensq = p.length_squared();
+
+        // inside of 10^-160 (very very close to center of sphere), doubles will
+        // reduce to 0, and getting unit vector will divide by 0 and give a
+        // bogus vector [±∞,±∞,±∞]
+        if (lensq <= 1 && lensq > 1e-160) {
+            return p / p.length();
+        }
+    }
+}
+
+inline vec3 random_on_hemisphere(vec3& normal) {
+    auto p = random_unit_vector();  // point on the unit sphere
+
+    if (dot(p, normal) > 0.0)
+        return p;
+    else
+        return -p;
+}
 
 #endif
