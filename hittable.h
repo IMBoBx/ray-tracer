@@ -3,10 +3,13 @@
 
 #include "ray_tracer.h"
 
+class material;
+
 class hit_record {
    public:
     point3 p;
     vec3 normal;
+    shared_ptr<material> mat;
     double t;
     bool front_face;  // whether the incident ray is hitting the
                       // "outside"/"front" of the shape
