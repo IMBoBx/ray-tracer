@@ -18,13 +18,19 @@ int main() {
     world.add(make_shared<sphere>(point3(0, 0.0, -1.2), 0.5, material_center));
     world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left));
     world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
-    world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.25, material_bubble));
+    world.add(
+        make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.25, material_bubble));
 
     camera cam;
     cam.aspect_ratio = 16.0 / 9.0;
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+
+    cam.vfov = 90;
+    cam.lookfrom = point3(0, 0, 0);
+    cam.lookat = point3(0, 0, -1);
+    cam.vup = vec3(0, 1, 0);
 
     cam.render(world);
 }

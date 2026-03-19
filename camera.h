@@ -6,10 +6,15 @@
 
 class camera {
    public:
-    double aspect_ratio = 1.0;
-    int image_width = 100;
-    int samples_per_pixel = 10;
-    int max_depth = 10;
+    double aspect_ratio = 1.0;   // ratio width / height
+    int image_width = 100;       // width in no. of pixels
+    int samples_per_pixel = 10;  // no. of samples to average for antialiasing
+    int max_depth = 10;          // recursion depth for child rays
+
+    double vfov = 90;  // vertical field of view (degrees)
+    point3 lookfrom = point3(0, 0, 0);
+    point3 lookat = point3(0, 0, -1);
+    vec3 vup = vec3(0, 1, 0);  // camera-relative "up" direction
 
     void render(const hittable& world) {
         initialize();
@@ -40,6 +45,7 @@ class camera {
     vec3 pixel_delta_u;
     vec3 pixel_delta_v;
     double pixel_samples_scale;
+    vec3 u, v, w;
 
     void initialize() {
         // calculate and clip image height to at least 1
@@ -48,17 +54,25 @@ class camera {
 
         pixel_samples_scale = 1.0 / samples_per_pixel;
 
-        center = point3(0, 0, 0);
+        center = lookfrom;
 
         // define viewport dimensions
-        auto focal_length = 1.0;
-        auto viewport_height = 2.0;
+        auto focal_length = (lookfrom - lookat).length();
+        auto theta = degrees_to_radians(vfov);
+        auto h = std::tan(theta / 2);
+
+        auto viewport_height = 2 * h * focal_length;
         auto viewport_width =
             viewport_height * (double(image_width) / image_height);
 
+        // calculate u, v, w
+        w = unit_vector(lookfrom - lookat);
+        u = unit_vector(cross(vup, w));
+        v = cross(w, u);
+
         // calculate horizontal and vertical viewport vectors along the edges
-        auto viewport_u = vec3(viewport_width, 0, 0);
-        auto viewport_v = vec3(0, -viewport_height, 0);
+        auto viewport_u = viewport_width * u; // vector across the viewport horizontally (top left to top right)
+        auto viewport_v = viewport_height * -v; // vector down the viewport vertically (top left to bottom left)
 
         // calculate pixel delta values (horizontal and vertical)
         pixel_delta_u = viewport_u / image_width;
@@ -66,7 +80,7 @@ class camera {
 
         // calculate top left pixel of viewport
         auto viewport_upper_left =
-            center - vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
+            center - (focal_length * w) - viewport_u / 2 - viewport_v / 2;
         pixel00_loc =
             viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
     }
@@ -94,7 +108,7 @@ class camera {
         hit_record rec;
 
         if (world.hit(r, interval(0.001, infinity), rec)) {
-                        ray scattered;
+            ray scattered;
             color attenuation;
 
             if (rec.mat->scatter(r, rec, attenuation, scattered)) {
