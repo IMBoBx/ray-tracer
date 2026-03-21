@@ -36,3 +36,4 @@ HD inline float degrees_to_radians(float degrees) {
 #include "Interval.cuh"
 #include "Ray.cuh"
 #include "Vec3.cuh"
+#include "HitRecord.cuh"

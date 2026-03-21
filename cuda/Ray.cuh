@@ -16,5 +16,5 @@ class Ray {
     HD const Point3& origin() const { return orig; }
     HD const Vec3& direction() const { return dir; }
 
-    HD Point3 at(double t) const { return orig + t * dir; }
+    HD Point3 at(float t) const { return orig + t * dir; }
 };
