@@ -1,5 +1,4 @@
-#ifndef COLOR_CUH
-#define COLOR_CUH
+#pragma once
 
 #include <iostream>
 
@@ -32,5 +31,3 @@ HD void write_color(std::ostream& out, const Color& pixel_color) {
     // Write out the pixel color components.
     out << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
 }
-
-#endif

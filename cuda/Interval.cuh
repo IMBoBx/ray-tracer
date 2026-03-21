@@ -1,5 +1,4 @@
-#ifndef INTERVAL_CUH
-#define INTERVAL_CUH
+#pragma once
 
 #include "RayTracer.cuh"
 
@@ -27,5 +26,3 @@ class Interval {
 
 const Interval Interval::empty = Interval(+infinity, -infinity);
 const Interval Interval::universe = Interval(-infinity, +infinity);
-
-#endif

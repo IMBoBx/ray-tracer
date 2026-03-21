@@ -1,5 +1,4 @@
-#ifndef RAY_TRACER_CUH
-#define RAY_TRACER_CUH
+#pragma once
 
 #define HD __host__ __device__
 
@@ -37,5 +36,3 @@ HD inline float degrees_to_radians(float degrees) {
 #include "Interval.cuh"
 #include "Ray.cuh"
 #include "Vec3.cuh"
-
-#endif

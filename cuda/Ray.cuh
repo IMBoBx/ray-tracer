@@ -1,5 +1,4 @@
-#ifndef RAY_CUH
-#define RAY_CUH
+#pragma once
 
 #include "RayTracer.cuh"
 
@@ -19,5 +18,3 @@ class Ray {
 
     HD Point3 at(double t) const { return orig + t * dir; }
 };
-
-#endif

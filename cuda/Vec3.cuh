@@ -1,5 +1,4 @@
-#ifndef VEC3_CUH
-#define VEC3_CUH
+#pragma once
 
 #include "RayTracer.cuh"
 
@@ -14,9 +13,7 @@ class Vec3 {
     HD float y() const { return e[1]; }
     HD float z() const { return e[2]; }
 
-    HD Vec3 operator-() const {
-        return Vec3(-e[0], -e[1], -e[2]);
-    }
+    HD Vec3 operator-() const { return Vec3(-e[0], -e[1], -e[2]); }
     HD float operator[](int i) const { return e[i]; }
     HD float& operator[](int i) { return e[i]; }
 
@@ -56,15 +53,12 @@ class Vec3 {
     //                 random_double(min, max));
     // }
 
-    HD float length() const {
-        return std::sqrt(length_squared());
-    }
+    HD float length() const { return std::sqrt(length_squared()); }
 };
 
 using Point3 = Vec3;
 
-HD inline std::ostream& operator<<(std::ostream& out,
-                                                    const Vec3& v) {
+HD inline std::ostream& operator<<(std::ostream& out, const Vec3& v) {
     return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
 }
 
@@ -84,13 +78,9 @@ HD inline Vec3 operator*(float t, const Vec3& v) {
     return Vec3(t * v.e[0], t * v.e[1], t * v.e[2]);
 }
 
-HD inline Vec3 operator*(const Vec3& v, float t) {
-    return t * v;
-}
+HD inline Vec3 operator*(const Vec3& v, float t) { return t * v; }
 
-HD inline Vec3 operator/(const Vec3& v, float t) {
-    return (1 / t) * v;
-}
+HD inline Vec3 operator/(const Vec3& v, float t) { return (1 / t) * v; }
 
 HD inline Vec3 operator/(Vec3 u, const Vec3& v) {
     return Vec3(u.e[0] / v.e[0], u.e[1] / v.e[1], u.e[2] / v.e[2]);
@@ -106,9 +96,7 @@ HD inline Vec3 cross(const Vec3& u, const Vec3& v) {
                 u.e[0] * v.e[1] - u.e[1] * v.e[0]);
 }
 
-HD inline Vec3 unit_vector(const Vec3& v) {
-    return v / v.length();
-}
+HD inline Vec3 unit_vector(const Vec3& v) { return v / v.length(); }
 
 // TODO: add the random utils
 // random_unit_vector()
@@ -120,12 +108,10 @@ HD inline Vec3 reflect(const Vec3& v, const Vec3& n) {
                                    // BY LENGTH(N).
 }
 
-HD inline Vec3 refract(const Vec3& uv, const Vec3& n,
-                                        float eta_ratio) {
+HD inline Vec3 refract(const Vec3& uv, const Vec3& n, float eta_ratio) {
     auto cos_theta = std::fmin(dot(-uv, n), 1.0);
     Vec3 r_out_perp = eta_ratio * (uv + cos_theta * n);
     Vec3 r_out_parallel =
         -std::sqrt(std::fabs(1.0 - r_out_perp.length_squared())) * n;
     return r_out_perp + r_out_parallel;
-
-#endif
+}
