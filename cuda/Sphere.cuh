@@ -1,5 +1,7 @@
 #pragma once
 
+#include "HitRecord.cuh"
+#include "Material.cuh"
 #include "RayTracer.cuh"
 
 struct Sphere {

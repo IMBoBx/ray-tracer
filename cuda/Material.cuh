@@ -11,6 +11,8 @@ struct Material {
     float ri;
 };
 
+HD float reflectance(float, float);  // forward declaring
+
 HD bool scatter_lambertian(const Ray& r_in, const HitRecord& rec,
                            Color& attenuation, Ray& scattered) {
     auto scatter_direction = rec.normal + random_unit_vector();

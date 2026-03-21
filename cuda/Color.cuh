@@ -13,7 +13,7 @@ HD inline float linear_to_gamma(float linear_component) {
     return 0;
 }
 
-HD void write_color(std::ostream& out, const Color& pixel_color) {
+void write_color(std::ostream& out, const Color& pixel_color) {
     auto r = pixel_color.x();
     auto g = pixel_color.y();
     auto b = pixel_color.z();
