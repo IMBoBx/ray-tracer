@@ -16,21 +16,21 @@ HD bool hit_sphere(const Sphere& sphere, const Ray& r, Interval ray_t,
     Vec3 oc = center - r.origin();
     Vec3 dir = r.direction();
 
-    double a = dir.length_squared();
+    float a = dir.length_squared();
     // b = -2*dir - oc; use b = -2h;
-    double h = dot(dir, oc);
-    double c = oc.length_squared() - radius * radius;
+    float h = dot(dir, oc);
+    float c = oc.length_squared() - radius * radius;
 
-    double discriminant = h * h - a * c;  //
+    float discriminant = h * h - a * c;  //
 
     if (discriminant < 0) {
         return false;
     }
 
-    double sqrtd = cuda::std::sqrt(discriminant);
+    float sqrtd = cuda::std::sqrt(discriminant);
 
     // finding nearest root
-    double root = (h - sqrtd) / a;
+    float root = (h - sqrtd) / a;
     if (!ray_t.surrounds(root)) {
         root = (h + sqrtd) / a;
         if (!ray_t.surrounds(root)) {
@@ -51,7 +51,7 @@ HD bool hit_world(const Sphere* world, int num_objects, const Ray& r,
                   Interval ray_t, HitRecord& rec) {
     HitRecord temp_rec;
     bool hit_anything = false;
-    double closest_yet = ray_t.max;
+    float closest_yet = ray_t.max;
 
     for (int i = 0; i < num_objects; i++) {
         const auto& obj = world[i];
