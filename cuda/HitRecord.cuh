@@ -1,7 +1,9 @@
 #pragma once
 
-#include "RayTracer.cuh"
 #include "Material.cuh"
+#include "Ray.cuh"
+#include "RayTracer.cuh"
+#include "Vec3.cuh"
 
 class HitRecord {
    public:

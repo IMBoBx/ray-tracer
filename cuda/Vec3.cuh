@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RayTracer.cuh"
+#include "CudaUtils.cuh"
 
 class Vec3 {
    public:

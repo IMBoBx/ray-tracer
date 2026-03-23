@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-#include "RayTracer.cuh"
+#include "Vec3.cuh"
+#include "Interval.cuh"
 
 using Color = Vec3;
 

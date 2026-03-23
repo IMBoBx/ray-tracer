@@ -8,6 +8,9 @@ struct Sphere {
     Point3 center;
     float radius;
     Material mat;
+
+    Sphere(Point3 center, float radius, Material mat)
+        : center(center), radius(radius), mat(mat) {}
 };
 
 HD bool hit_sphere(const Sphere& sphere, const Ray& r, Interval ray_t,

@@ -7,7 +7,9 @@
 
 #include <cuda/cmath>
 #include <iostream>
+#include <limits>
 
+#define INDX(i, j, ld) ((i) + (j) * (ld))
 #define CUDA_CHECK(val) cuda_check((val), #val, __FILE__, __LINE__)
 
 inline void cuda_check(cudaError_t err, const char* call, const char* file,
@@ -43,3 +45,6 @@ HD inline float random_float(curandState* state = NULL) {
 HD inline float random_float(float min, float max, curandState* state = NULL) {
     return min + (max - min) * random_float(state);
 }
+
+inline const float Infinity = std::numeric_limits<float>::infinity();
+inline const float Pi = 3.1415926535897932385f;
