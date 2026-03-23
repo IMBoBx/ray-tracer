@@ -9,7 +9,7 @@ using Color = Vec3;
 
 HD inline float linear_to_gamma(float linear_component) {
     if (linear_component > 0) {
-        return std::sqrt(linear_component);
+        return cuda::std::sqrt(linear_component);
     }
     return 0;
 }

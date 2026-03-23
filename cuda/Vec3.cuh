@@ -39,8 +39,8 @@ class Vec3 {
 
     HD bool near_zero() const {
         auto s = 1e-8;
-        return (std::fabs(e[0]) < s) && (std::fabs(e[1]) < s) &&
-               (std::fabs(e[2]) < s);
+        return (cuda::std::fabs(e[0]) < s) && (cuda::std::fabs(e[1]) < s) &&
+               (cuda::std::fabs(e[2]) < s);
     }
 
     HD static Vec3 random(curandState* state = NULL) {
@@ -54,7 +54,7 @@ class Vec3 {
                     random_float(min, max, state));
     }
 
-    HD float length() const { return std::sqrt(length_squared()); }
+    HD float length() const { return cuda::std::sqrt(length_squared()); }
 };
 
 using Point3 = Vec3;
@@ -136,9 +136,9 @@ HD inline Vec3 reflect(const Vec3& v, const Vec3& n) {
 }
 
 HD inline Vec3 refract(const Vec3& uv, const Vec3& n, float eta_ratio) {
-    auto cos_theta = std::fmin(dot(-uv, n), 1.0);
+    auto cos_theta = cuda::std::fmin(dot(-uv, n), 1.0);
     Vec3 r_out_perp = eta_ratio * (uv + cos_theta * n);
     Vec3 r_out_parallel =
-        -std::sqrt(std::fabs(1.0 - r_out_perp.length_squared())) * n;
+        -cuda::std::sqrt(std::fabs(1.0 - r_out_perp.length_squared())) * n;
     return r_out_perp + r_out_parallel;
 }

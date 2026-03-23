@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Color.cuh"
+
 enum class MaterialType : int { Lambertian, Metal, Dielectric };
 
 struct Material {

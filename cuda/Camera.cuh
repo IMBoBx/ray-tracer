@@ -27,7 +27,7 @@ class Camera {
         initialize();
         std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
 
-        std::clog << "Rendering...";
+        std::clog << "Rendering...\n" << std::flush;
         Color *h_image, *d_image;
         curandState* states;
 
@@ -35,30 +35,47 @@ class Camera {
         cudaMalloc(&d_image, sizeof(Color) * image_width * image_height);
         cudaMalloc(&states, sizeof(curandState) * image_width * image_height);
 
-        dim3 threads(32, 32, 1);
-        dim3 blocks(cuda::ceil_div(image_width, 32),
-                    cuda::ceil_div(image_height, 32), 1);
+        Sphere* d_world;
+        cudaMalloc(&d_world, sizeof(Sphere) * num_objects);
+        cudaMemcpy(d_world, world, sizeof(Sphere) * num_objects,
+                   cudaMemcpyHostToDevice);
+
+        Camera* d_cam;
+        cudaMalloc(&d_cam, sizeof(Camera));
+        cudaMemcpy(d_cam, this, sizeof(Camera), cudaMemcpyHostToDevice);
+
+        dim3 threads(16, 16, 1);
+        // dim3 blocks(cuda::ceil_div(image_width, 32),
+        //             cuda::ceil_div(image_height, 32), 1);
+        dim3 blocks((image_width + 15) / 16, (image_height + 15) / 16, 1);
 
         init_curand<<<blocks, threads>>>(states, 42, image_width, image_height);
-        render_kernel<<<blocks, threads>>>(states, d_image, world, num_objects,
-                                           this);
+        CUDA_CHECK(cudaGetLastError());
+        CUDA_CHECK(cudaDeviceSynchronize());
 
-        cudaMemcpy(d_image, h_image, sizeof(Color) * image_width * image_height,
+        render_kernel<<<blocks, threads>>>(states, d_image, d_world,
+                                           num_objects, d_cam);
+        CUDA_CHECK(cudaGetLastError());
+        CUDA_CHECK(cudaDeviceSynchronize());
+
+        cudaDeviceSynchronize();
+        cudaMemcpy(h_image, d_image, sizeof(Color) * image_width * image_height,
                    cudaMemcpyDeviceToHost);
 
-        std::clog << std::flush << "\rRendering Finished.\n";
+        std::clog << "Rendering complete.\n" << std::flush;
 
         for (int j = 0; j < image_height; j++) {
-            std::clog << "\rWriting image. Scanlines remaining: "
-                      << (image_height - j) << ' ' << std::flush;
-
+            std::clog << "\rLines remaining: " << (image_height - j) << "   "
+                      << std::flush;
             for (int i = 0; i < image_width; i++) {
-                Color pixel_color = h_image[INDX(i, j, image_width)];
-                write_color(std::cout, pixel_samples_scale * pixel_color);
+                write_color(std::cout, pixel_samples_scale *
+                                           h_image[INDX(i, j, image_width)]);
             }
         }
-        std::clog << "\rDone.                 \n";
+        std::clog << "\rDone.               \n" << std::flush;
 
+        cudaFree(d_cam);
+        cudaFree(d_world);
         cudaFree(states);
         cudaFree(d_image);
         free(h_image);
@@ -150,30 +167,36 @@ class Camera {
     }
 
     HD Color ray_color(const Ray& r, int depth, const Sphere* world,
-                    int num_objects, curandState* state) const {
-        if (depth <= 0) return Color(0, 0, 0);
+                       int num_objects, curandState* state) const {
+        Color accumulated = Color(1.0f, 1.0f, 1.0f);
+        Ray current_ray = r;
 
-        HitRecord rec;
+        for (int i = 0; i < depth; i++) {
+            HitRecord rec;
 
-        if (hit_world(world, num_objects, r, Interval(0.001, Infinity), rec)) {
-            Ray scattered;
-            Color attenuation;
+            if (hit_world(world, num_objects, current_ray,
+                          Interval(0.001f, Infinity), rec)) {
+                Ray scattered;
+                Color attenuation;
 
-            if (scatter(r, rec, attenuation, scattered)) {
-                return attenuation * ray_color(scattered, depth - 1, world,
-                                               num_objects, state);
+                if (scatter(current_ray, rec, attenuation, scattered, state)) {
+                    accumulated = accumulated * attenuation;
+                    current_ray = scattered;
+                } else {
+                    return Color(0, 0, 0);
+                }
+            } else {
+                // background
+                Vec3 unit_dir = unit_vector(current_ray.direction());
+                float a = 0.5f * (unit_dir.y() + 1.0f);
+                Color bg = (1 - a) * Color(1.0f, 1.0f, 1.0f) +
+                           a * Color(0.2f, 0.4f, 1.0f);
+                return accumulated * bg;
             }
-
-            return Color(0, 0, 0);
-
-            // auto dir = rec.normal + random_unit_vector();
-            // return 0.5 * ray_color(Ray(rec.p, dir), depth - 1, world);
         }
 
-        Vec3 unit_dir = unit_vector(r.direction());
-        auto a = 0.5 * (unit_dir.y() + 1.0);
-        return (1 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.2, 0.4, 1.0);
-    }
+        return Color(0, 0, 0);
+    };
 };
 
 __global__ void render_kernel(curandState* states, Color* d_image,
@@ -198,7 +221,8 @@ __global__ void render_kernel(curandState* states, Color* d_image,
 
     for (int sample = 0; sample < samples_per_pixel; sample++) {
         Ray r = cam->get_ray(i, j, &states[idx]);
-        pixel_color += cam->ray_color(r, max_depth, world, num_objects, states);
+        pixel_color +=
+            cam->ray_color(r, max_depth, world, num_objects, &states[idx]);
     }
 
     d_image[INDX(i, j, image_width)] = pixel_color;
