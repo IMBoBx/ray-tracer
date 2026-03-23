@@ -76,7 +76,3 @@ HD float reflectance(float cosine, float refractive_index) {
     r0 = r0 * r0;
     return r0 + (1 - r0) * std::pow((1 - cosine), 5);
 }
-
-// TODO: fix the RNG stuff here too
-Vec3 random_unit_vector() { return Vec3(0.5, 0.5, 0.5); }
-float random_float() { return 0.5; }

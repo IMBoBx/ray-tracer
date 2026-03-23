@@ -43,15 +43,16 @@ class Vec3 {
                (std::fabs(e[2]) < s);
     }
 
-    // TODO: fix RNG functions
-    // static Vec3 random() {
-    //     return Vec3(random_double(), random_double(), random_double());
-    // }
+    HD static Vec3 random(curandState* state = NULL) {
+        return Vec3(random_float(state), random_float(state),
+                    random_float(state));
+    }
 
-    // static Vec3 random(double min, double max) {
-    //     return Vec3(random_double(min, max), random_double(min, max),
-    //                 random_double(min, max));
-    // }
+    HD static Vec3 random(double min, double max, curandState* state = NULL) {
+        return Vec3(random_float(min, max, state),
+                    random_float(min, max, state),
+                    random_float(min, max, state));
+    }
 
     HD float length() const { return std::sqrt(length_squared()); }
 };
@@ -98,10 +99,36 @@ HD inline Vec3 cross(const Vec3& u, const Vec3& v) {
 
 HD inline Vec3 unit_vector(const Vec3& v) { return v / v.length(); }
 
-// TODO: add the random utils
-// random_unit_vector()
-// random_on_hemisphere()
-// random_in_unit_disc()
+HD inline Vec3 random_unit_vector(curandState* state = NULL) {
+    while (true) {
+        auto p = Vec3::random(-1, 1, state);
+        auto lensq = p.length_squared();
+
+        // inside of 10^-38 (very very close to center of sphere), floats will
+        // reduce to 0, and getting unit vector will divide by 0 and give a
+        // bogus vector [±∞,±∞,±∞]
+        if (lensq <= 1 && lensq > 1e-38) {
+            return p / p.length();
+        }
+    }
+}
+
+HD inline Vec3 random_on_hemisphere(Vec3& normal, curandState* state) {
+    auto p = random_unit_vector(state);  // point on the unit sphere
+
+    if (dot(p, normal) > 0.0)
+        return p;
+    else
+        return -p;
+}
+
+HD inline Vec3 random_in_unit_disc(curandState* state) {
+    while (true) {
+        auto p =
+            Vec3(random_float(-1, 1, state), random_float(-1, 1, state), 0);
+        if (p.length_squared() < 1) return p;
+    }
+}
 
 HD inline Vec3 reflect(const Vec3& v, const Vec3& n) {
     return v - 2 * n * dot(v, n);  // ASSUMING N IS UNIT VECTOR. IF NOT, DIVIDE
