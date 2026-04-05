@@ -8,7 +8,7 @@ This project implements a complete Monte Carlo path tracer in two forms: a seque
 
 The CPU implementation lives on the `main` branch. The CUDA port lives on the `cuda` branch.
 
-![Benchmark Scene](result_image.png)
+![Benchmark Scene](dump/result_image.png)
 *The benchmark scene rendered at 1080px, 500 spp, `max_depth = 50`.*
 
 ---
