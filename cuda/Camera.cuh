@@ -44,10 +44,16 @@ class Camera {
         cudaMalloc(&d_cam, sizeof(Camera));
         cudaMemcpy(d_cam, this, sizeof(Camera), cudaMemcpyHostToDevice);
 
-        dim3 threads(16, 16, 1);
+        dim3 threads(64, 4, 1);
         // dim3 blocks(cuda::ceil_div(image_width, 32),
         //             cuda::ceil_div(image_height, 32), 1);
         dim3 blocks((image_width + 15) / 16, (image_height + 15) / 16, 1);
+
+        cudaEvent_t t_start, t_stop;
+        cudaEventCreate(&t_start);
+        cudaEventCreate(&t_stop);
+
+        cudaEventRecord(t_start);
 
         init_curand<<<blocks, threads>>>(states, 42, image_width, image_height);
         CUDA_CHECK(cudaGetLastError());
@@ -58,7 +64,16 @@ class Camera {
         CUDA_CHECK(cudaGetLastError());
         CUDA_CHECK(cudaDeviceSynchronize());
 
-        cudaDeviceSynchronize();
+        cudaEventRecord(t_stop);
+        cudaEventSynchronize(t_stop);
+
+        float elapsed_ms = 0;
+        cudaEventElapsedTime(&elapsed_ms, t_start, t_stop);
+        std::clog << "Render time: " << elapsed_ms / 1000.0f << " s\n";
+
+        cudaEventDestroy(t_start);
+        cudaEventDestroy(t_stop);
+
         cudaMemcpy(h_image, d_image, sizeof(Color) * image_width * image_height,
                    cudaMemcpyDeviceToHost);
 

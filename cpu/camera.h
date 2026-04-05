@@ -1,6 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <chrono>
+
 #include "hittable.h"
 #include "material.h"
 
@@ -23,6 +25,8 @@ class camera {
         initialize();
         std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
 
+        auto t_start = std::chrono::high_resolution_clock::now();
+
         for (int j = 0; j < image_height; j++) {
             std::clog << "\rScanlines remaining: " << (image_height - j) << ' '
                       << std::flush;
@@ -38,7 +42,11 @@ class camera {
                 write_color(std::cout, pixel_samples_scale * pixel_color);
             }
         }
+
+        auto t_end = std::chrono::high_resolution_clock::now();
+        double elapsed = std::chrono::duration<double>(t_end - t_start).count();
         std::clog << "\rDone.                 \n";
+        std::clog << "Render time: " << elapsed << " s\n";
     }
 
    private:

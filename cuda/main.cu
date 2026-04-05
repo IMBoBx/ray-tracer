@@ -34,8 +34,8 @@ int main() {
 
     // Camera cam;
     // cam.aspect_ratio = 16.0 / 9.0;
-    // cam.image_width = 400;
-    // cam.samples_per_pixel = 100;
+    // cam.image_width       = 1080;
+    // cam.samples_per_pixel = 500;
     // cam.max_depth = 50;
 
     // cam.vfov = 90;
@@ -98,7 +98,7 @@ int main() {
     Camera cam;
 
     cam.aspect_ratio = 16.0f / 9.0f;
-    cam.image_width = 1080;
+    cam.image_width       = 1080;
     cam.samples_per_pixel = 500;
     cam.max_depth = 50;
 
