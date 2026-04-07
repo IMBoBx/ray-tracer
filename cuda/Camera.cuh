@@ -44,10 +44,9 @@ class Camera {
         cudaMalloc(&d_cam, sizeof(Camera));
         cudaMemcpy(d_cam, this, sizeof(Camera), cudaMemcpyHostToDevice);
 
-        dim3 threads(64, 4, 1);
-        // dim3 blocks(cuda::ceil_div(image_width, 32),
-        //             cuda::ceil_div(image_height, 32), 1);
-        dim3 blocks((image_width + 15) / 16, (image_height + 15) / 16, 1);
+        dim3 threads(16, 16, 1);
+        dim3 blocks(ceil_div(image_width, threads.x),
+                    ceil_div(image_height, threads.y), 1);
 
         cudaEvent_t t_start, t_stop;
         cudaEventCreate(&t_start);

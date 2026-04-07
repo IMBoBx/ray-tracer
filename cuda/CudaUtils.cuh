@@ -46,5 +46,7 @@ HD inline float random_float(float min, float max, curandState* state = NULL) {
     return min + (max - min) * random_float(state);
 }
 
+HD inline int ceil_div(int a, int b) { return (int)((a + b - 1) / b); }
+
 inline const float Infinity = std::numeric_limits<float>::infinity();
 inline const float Pi = 3.1415926535897932385f;
